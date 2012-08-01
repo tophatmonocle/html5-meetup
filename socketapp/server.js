@@ -2,7 +2,7 @@ var http = require('http')
 , express = require('express') 
 , io = require('socket.io')
 , _ = require('underscore')
-
+, colors = require('colors')
 // game_state {
 //   map: [] //array of points {session: session_id, coord: [x,y], generation: age]
 //   players: [{ session: session_id, current: [], vector: [], age_cutoff: [] },]
@@ -15,10 +15,26 @@ var generation = 0;
 
 var game_state = []
 var players = {}
+var playercounter = 0
 
 //setup http server
 var app = express();
 var server = http.createServer(app);
+
+function playerObject(data) { _.extend(this,data) }
+
+playerObject.prototype.die = function () { 
+    var self = this
+    var id = this.id
+    delete players[id]
+
+    _.map(game_state,function (point) {  
+        // mark cells as dead
+        if (point.id == id) { point.id = -1 }
+    })
+
+    
+}
 
 app.configure(function(){
 	app.set('views', __dirname + '/views');
@@ -31,7 +47,6 @@ app.get('/', function(req,res){
 });
 
 server.listen(80,'0.0.0.0')
-
 
 //setup websocket server
 ss = io.listen(server);
@@ -48,12 +63,12 @@ ss.sockets.on("connection", function(socket){
 
     // decide where to put the player
     var rndcoords = [ Math.round(Math.random() * 50) + 25,  Math.round(Math.random() * 50) + 25 ]
-    
-    
-    var player = { current: rndcoords, vector: [0,1], age_cutoff: [10], id: _.keys(players).length}
-    console.log("player", player.id, "connected")
 
-    players[socket.id] = player
+    
+    var player = new playerObject({ current: rndcoords, vector: [0,1], age_cutoff: [10], socket: socket, id: playercounter++})
+    console.log(("player " + player.id + " connected").green)
+
+    players[player.id] = player
 	
 	//setup key events
 	socket.on('keypress', function(data){
@@ -68,14 +83,8 @@ ss.sockets.on("connection", function(socket){
 	});
     
     socket.on('disconnect',function () { 
-        console.log("player", player.id, "disconnected")
-        delete players[socket.id]
-        
-        _.map(game_state,function (point) {  
-            // mark cells as dead
-            if (point.id == player.id) { point.id = -1 }
-        })
-        
+        console.log(("player " + player.id+ " disconnected").red)
+        player.die()
     })
 
 });
@@ -87,16 +96,33 @@ ss.of('/ch1').on('connection', function(socket){
 //setup state update and broadcase
 var update_state = function(){
 	generation++;
-	console.log('generation: '+generation);
+//	console.log('generation: '+generation);
 
 	_.map(players,function (player) { 
 		var current = player.current; 
 		var vector = player.vector;
 		var new_coord = [current[0]+vector[0], current[1]+vector[1]];
-		player.current = new_coord;
-		game_state.push({ id: player.id, coord: new_coord, generation: 0 });
+        
+        if (stupidCollision(new_coord)) { 
+            console.log(('player ' + player.id + ' died').red)
+            player.die() 
+        } else {
+		    player.current = new_coord;
+		    game_state.push({ id: player.id, coord: new_coord, generation: 0 });
+        }
     })
 }
+
+function sameCoords(c1,c2) { 
+    if ((c1[0] == c2[0]) && (c1[1] == c2[1])) { return true } else { return false }
+}
+
+function stupidCollision(coord) {  
+    return _.find(game_state,function (point) { 
+        return sameCoords(point.coord, coord)
+    })
+}
+
 
 var broadcast_state = function(){
 	//for each active session, send the updated state event

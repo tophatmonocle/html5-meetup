@@ -28,7 +28,7 @@ function initializePaper() {
 
 function getColour(playerid) { 
     if (playerid == -1) { return 'black' }
-    var colours = [ 'red','green','blue','cyan','orange','pink','yellow' ]
+    var colours = [ 'red','green','blue','orange','yellow' ]
     return colours[playerid % colours.length]
 }
 
