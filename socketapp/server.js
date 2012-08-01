@@ -82,6 +82,15 @@ var update_state = function(){
 
 	//update game state
 	for( idx in game_state.players ){
+		//for each player, update their location and insert into the map
+		var current = game_state.players[idx].current; 
+		var vector = game_state.players[idx].vector;
+		var new_coord = [current[0]+vector[0], current[1]+vector[1]];
+		var session_id = game_state.players[idx].session;
+		game_state.players[idx].current = new_coord;
+		game_state.map.push({ session: session_id, coord: new_coord, generation: 0 });
+		
+		//TODO: collision detection, bounds checking
 	}
 
 	//kill off snake sections that are past their generation
