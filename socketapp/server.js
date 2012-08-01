@@ -58,7 +58,7 @@ ss.sockets.on("connection", function(socket){
 	//setup key events
 	socket.on('keypress', function(data){
 		//add player move to queue
-		console.log('keypress '+data.direction);
+		console.log('player', player.id, 'keypress',data.direction);
 		var vector = []
 		if( data.direction == 'up' ){ vector = [0,-1]; }
 		else if( data.direction == 'down' ){ vector = [0,1] }
@@ -70,6 +70,12 @@ ss.sockets.on("connection", function(socket){
     socket.on('disconnect',function () { 
         console.log("player", player.id, "disconnected")
         delete players[socket.id]
+        
+        _.map(game_state,function (point) {  
+            // mark cells as dead
+            if (point.id == player.id) { point.id = -1 }
+        })
+        
     })
 
 });

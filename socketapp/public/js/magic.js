@@ -16,7 +16,6 @@ demo.send = function(){
 	demo.socket.emit('ping');
 }
 
-
 function initializePaper() {  
     var paper = Raphael("canvas", settings.width * (settings.size + settings.spacing), settings.height * (settings.size + settings.spacing))
     paper.clearX = function () { 
@@ -27,7 +26,8 @@ function initializePaper() {
     return paper
 }
 
-function getColour(playerid) {  
+function getColour(playerid) { 
+    if (playerid == -1) { return 'black' }
     var colours = [ 'red','green','blue','cyan','orange','pink','yellow' ]
     return colours[playerid % colours.length]
 }
