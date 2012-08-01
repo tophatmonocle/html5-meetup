@@ -16,12 +16,13 @@ After the tutorial there will be 4 hours to code a websockets enabled game. Feel
 
 Finally, at 12pm we will do quick 5 minute demos for all those who got something done. At which point there will be judging based on completely arbitrary criteria. Prizes will be given out.
 
-* 07:00pm - arrive and be merry
+* 07:00pm - arrive and be merry (or else.)
 * 08:00pm - Tutorial #1
 * 08:30pm - Tutorial #2
 * 09:00pm - Tutorial #3
-* 12:00pm - Demo time!
-* 12:30pm - Prizes!
+* 12:00am - Demo time!
+* 12:30am - Prizes!
+* 12:45am - get the hell out.
 
 Getting Started
 ---------------
