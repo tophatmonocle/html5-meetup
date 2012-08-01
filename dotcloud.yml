@@ -1,3 +1,5 @@
 www:
   type: nodejs
-  approot: nodetest
+  approot: socketapp
+db:
+  type: mysql
