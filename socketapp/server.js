@@ -43,8 +43,8 @@ ss.sockets.on("connection", function(socket){
 
 	//setup player
 	//   players: [{ session: session_id, current: [], vector: [], age_cutoff: [] },]
-	game_state.players.push( {session: socket.id, current:[100,100], vector: [0,1], age_cutoff: [10]} )
-	game_state.map.push( {session: socket.id, coord: [100,100], generation: 0} )
+	game_state.players.push( {session: socket.id, current:[10,10], vector: [0,1], age_cutoff: [10]} )
+	game_state.map.push( {session: socket.id, coord: [10,10], generation: 0} )
 	
 	//setup key events
 	socket.on('keypress', function(data){
@@ -111,7 +111,7 @@ var broadcast_state = function(){
 setInterval(function(){
 	update_state();
 	broadcast_state();
-}, 3000);
+}, 1000);
 
 
 
