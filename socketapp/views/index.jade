@@ -4,10 +4,11 @@ html(lang="en")
 		title websockets demo
 		script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js")
 		script(src="js/socket.io.js")
-		script(src="js/ocanvas-2.2.0.js")
+		script(src="js/raphael-min.js")
+		script(src="js/underscore-min.js")
 		script(src="js/magic.js")
 	body
 		h1 #{title}
 		button(type="button", onclick="demo.send()") Ping
 		br
-		canvas(id="canvas", width="600", height="600")
+		div(id="canvas")
