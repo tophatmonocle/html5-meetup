@@ -27,8 +27,9 @@ function initializePaper() {
     return paper
 }
 
-function getColour(player) {  
-    return 'red'
+function getColour(playerid) {  
+    var colours = [ 'red','green','blue','cyan','orange','pink','yellow' ]
+    return colours[playerid % colours.length]
 }
 
 function renderGame(paper,data) {      
@@ -36,15 +37,12 @@ function renderGame(paper,data) {
     var size = settings.size
     var spacing = settings.spacing
 
-    console.log("RENDER",data)
-    _.map(data.map, function (point) { 
-        console.log("POINT",point)
+    _.map(data, function (point) { 
         paper.rect(
             (size + spacing) * point.coord[0],  // x
             (size + spacing) * point.coord[1],  // y
-            size, size, 2) // width, height, corner roundness
-            
-            .attr({fill: getColour(point[0]), stroke: "none"}) // colour
+            size, size, 2) // width, height, corner roundness            
+            .attr({fill: getColour(point.id), stroke: "none"}) // colour
     })
 }
 
@@ -52,15 +50,6 @@ function renderGame(paper,data) {
 $(document).ready(function() {
 	
     var paper = initializePaper()
-
-    renderGame(paper,[
-        [1, [3,3],1],
-        [1, [3,4],1],
-        [1, [3,5],1],
-        [1, [2,5],1],
-        [1, [1,5],1]
-    ])
-
 
 	//setup sockets
 	demo.socket = io.connect('http://0.0.0.0:80');

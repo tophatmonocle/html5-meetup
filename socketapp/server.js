@@ -1,6 +1,7 @@
 var http = require('http')
-  , express = require('express') 
-  , io = require('socket.io');
+, express = require('express') 
+, io = require('socket.io')
+, _ = require('underscore')
 
 // game_state {
 //   map: [] //array of points {session: session_id, coord: [x,y], generation: age]
@@ -8,9 +9,12 @@ var http = require('http')
 // }
 // player_move_queue = [{session: session_id, move: 'left'},]
 // generation is a counter for the number of state upates so far
-var game_state = {map: [], players: []};
+var game_state = []
 var player_move_queue = [];
 var generation = 0;
+
+var game_state = []
+var players = {}
 
 //setup http server
 var app = express();
@@ -28,8 +32,10 @@ app.get('/', function(req,res){
 
 server.listen(80,'0.0.0.0')
 
+
 //setup websocket server
 ss = io.listen(server);
+ss.set('log level',0)
 
 ss.set('transports', ['websocket','flashsocket','htmlfile','xhr-polling','jsonp-polling']);
 
@@ -39,24 +45,33 @@ ss.sockets.on("connection", function(socket){
 	socket.on('ping', function(){
 		socket.emit('pong');
 	});
-	console.log('socket connection!');
 
-	//setup player
-	//   players: [{ session: session_id, current: [], vector: [], age_cutoff: [] },]
-	game_state.players.push( {session: socket.id, current:[10,10], vector: [0,1], age_cutoff: [10]} )
-	game_state.map.push( {session: socket.id, coord: [10,10], generation: 0} )
+    // decide where to put the player
+    var rndcoords = [ Math.round(Math.random() * 50) + 25,  Math.round(Math.random() * 50) + 25 ]
+    
+    
+    var player = { current: rndcoords, vector: [0,1], age_cutoff: [10], id: _.keys(players).length}
+    console.log("player", player.id, "connected")
+
+    players[socket.id] = player
 	
 	//setup key events
 	socket.on('keypress', function(data){
 		//add player move to queue
 		console.log('keypress '+data.direction);
 		var vector = []
-		if( data.direction == 'up' ){ vector = [0,1]; }
-		else if( data.direction == 'down' ){ vector = [0,-1] }
+		if( data.direction == 'up' ){ vector = [0,-1]; }
+		else if( data.direction == 'down' ){ vector = [0,1] }
 		else if( data.direction == 'left' ){ vector = [-1,0] }
 		else if( data.direction == 'right' ){ vector = [1,0] }
-		player_move_queue.push({session: socket.id, direction: vector});
-	});	
+		player.vector = vector
+	});
+    
+    socket.on('disconnect',function () { 
+        console.log("player", player.id, "disconnected")
+        delete players[socket.id]
+    })
+
 });
 
 ss.of('/ch1').on('connection', function(socket){
@@ -67,37 +82,14 @@ ss.of('/ch1').on('connection', function(socket){
 var update_state = function(){
 	generation++;
 	console.log('generation: '+generation);
-	
-	//process player moves
-	for( idx in player_move_queue ){
-		//find player
-		for( idx2 in game_state.players ){
-			if( game_state.players[idx2].session == player_move_queue[idx].session )			
-				game_state.players[idx2].vector = player_move_queue[idx].direction;
-		}
-	}
 
-	//clear move queue
-	player_move_queue = [];
-
-	//update game state
-	for( idx in game_state.players ){
-		//for each player, update their location and insert into the map
-		var current = game_state.players[idx].current; 
-		var vector = game_state.players[idx].vector;
+	_.map(players,function (player) { 
+		var current = player.current; 
+		var vector = player.vector;
 		var new_coord = [current[0]+vector[0], current[1]+vector[1]];
-		var session_id = game_state.players[idx].session;
-		game_state.players[idx].current = new_coord;
-		game_state.map.push({ session: session_id, coord: new_coord, generation: 0 });
-		
-		//TODO: collision detection, bounds checking
-	}
-
-	//kill off snake sections that are past their generation
-	for( idx in game_state.map ){
-		//update generation
-		//if too old, kill it
-	}
+		player.current = new_coord;
+		game_state.push({ id: player.id, coord: new_coord, generation: 0 });
+    })
 }
 
 var broadcast_state = function(){
@@ -111,7 +103,7 @@ var broadcast_state = function(){
 setInterval(function(){
 	update_state();
 	broadcast_state();
-}, 1000);
+}, 300);
 
 
 
