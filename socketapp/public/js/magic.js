@@ -48,6 +48,12 @@ $(document).ready(function() {
 		} else if(e.keyCode == 39) { //right
 			demo.socket.emit('keypress', {direction:'right'});
 			console.log('right');
+		} else if(e.keyCode == 38) { //up
+			demo.socket.emit('keypress', {direction:'up'});
+			console.log('up');
+		} else if(e.keyCode == 40) { //down
+			demo.socket.emit('keypress', {direction:'down'});
+			console.log('down');
 		}
 	});
 });

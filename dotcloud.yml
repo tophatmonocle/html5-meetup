@@ -1,5 +1,0 @@
-www:
-  type: nodejs
-  approot: socketapp
-db:
-  type: mysql
