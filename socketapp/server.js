@@ -4,11 +4,11 @@ var http = require('http')
 
 //setup http server
 //express 2.0.0
-var app = express.createServer();
-var server = app;
+//var app = express.createServer();
+//var server = app;
 //express 3.0.0
-//var app = express();
-//var server = http.createServer(app);
+var app = express();
+var server = http.createServer(app);
 
 app.configure(function(){
 	app.set('views', __dirname + '/views');
@@ -17,10 +17,7 @@ app.configure(function(){
 });
 
 app.get('/', function(req,res){
-//express 3.0.0
-//	res.render('index', {title: 'websockets demo'});
-//experss 2.0.0
-	res.send("<!DOCTYPE html><html lang='en'><head><title>websockets demo</title><script src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script><script src='js/socket.io.js'></script><script src='js/magic.js'></script></head><body><h1>websockets demo</h1><button type='button' onclick='demo.send()'>Send</button></body></html>");
+	res.render('index', {title: 'websockets demo'});
 });
 
 server.listen(8080)
