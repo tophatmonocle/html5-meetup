@@ -2,14 +2,11 @@ window.WEB_SOCKET_SWF_LOCATION = "swf/WebSocketMain.swf";
 
 
 var settings = {
-    size: 10,
-    spacing: 2,
-    width: 50,  // those could be received from the serverside too...
-    height: 50  //
+    size: 5,
+    spacing: 1,
+    width: 100,  // those could be received from the serverside too...
+    height: 100  //
 }
-
-
-
 
 
 var demo = {count: 0}
@@ -39,11 +36,12 @@ function renderGame(paper,data) {
     var size = settings.size
     var spacing = settings.spacing
 
-    _.map(data, function (point) { 
-        console.log(point)
+    console.log("RENDER",data)
+    _.map(data.map, function (point) { 
+        console.log("POINT",point)
         paper.rect(
-            (size + spacing) * point[1][0],  // x
-            (size + spacing) * point[1][1],  // y
+            (size + spacing) * point.coord[0],  // x
+            (size + spacing) * point.coord[1],  // y
             size, size, 2) // width, height, corner roundness
             
             .attr({fill: getColour(point[0]), stroke: "none"}) // colour
